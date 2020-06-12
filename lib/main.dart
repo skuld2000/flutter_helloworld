@@ -15,27 +15,61 @@ class MyApp extends StatelessWidget {
     //final wordPair = WordPair.random();
 
     return MaterialApp(
-      title: 'Welcome Flutter',
-      //Scaffold 위젯의 appBar, title, body 속성 지정
-      home: Scaffold(
-        appBar: AppBar(
-          title: Text('Welcome to Flutter'),  //앱의 타이틀바에 보여질 문자열
-          ),
-        body: Center( //Center 위젯을 사용하면 자식 위젯이 화면 중앙에 정렬됨
-           // 단어의 첫글자만 대문자로하여 두 개의 단어를 결합한 문자열을 리턴하여 Text 위젯에 보이도록 합니다.  
-          //child: Text(wordPair.asPascalCase),
-          child: RandomWords(),
-        ),
-      )
+      title: 'Startup Name Generator 1',
+      home: RandomWords(),
     );
   }
 }
 
 
 class RandomWordsState extends State<RandomWords>{
+  final List<WordPair> _suggestions = <WordPair>[];
+  final TextStyle _biggerFont = const TextStyle(fontSize: 18);
+
+  @override
   Widget build(BuildContext context) {
-    final WordPair wordPair = WordPair.random();
-    return Text(wordPair.asPascalCase);
+    //final WordPair wordPair = WordPair.random();
+    //return Text(wordPair.asPascalCase);
+    return Scaffold(
+      appBar:AppBar(
+        title: Text('Startup Name Generator 2'),
+      ),
+      body: _buildSuggestions(),
+    );
+  }
+
+  Widget _buildSuggestions() {
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      //itemBuilder 콜백은 제안된 단어쌍 마다 한번씩 호출되며 각 제안은 ListTile 행에 배치된다.
+      //짝수행의 경우 이 함수는 단어쌍에 대해 ListTile 행을 추가 한다.
+      //홀수행의 경우 이 함수는 시각적 구분을 위해 Divider 위젯을 추가한다.
+      //작은 디바이스에서는 divider 가 잘 보이지 않을 수 있다.
+      itemBuilder: (BuildContext _context, int i){
+        
+        //홀수행의 경우 ListView 의 각 행 앞에 1픽셀 높이의 divider 위젯 추가
+        if (i.isOdd) {
+          return Divider();
+        }
+        
+        //i ~/ 2 => i 를 2로 나눈 정수 결과(나머지 버림)
+        //ListView 의 실제 단어쌍 수에서 divider 위젯을 뺀 값을 계산한다.
+        final int index = i ~/ 2;
+        
+        //만약 마지막 단어쌍일 경우
+        if (index >= _suggestions.length) {
+          //suggetsions list 에 10개 더 생성하여 추가한다.
+          _suggestions.addAll(generateWordPairs().take(10));
+        }
+        return _buildRow(_suggestions[index]);
+      }
+    );
+  }
+
+  Widget _buildRow(WordPair pair) {
+    return ListTile(
+      title: Text(pair.asPascalCase, style: _biggerFont,),
+    );
   }
 }
 
